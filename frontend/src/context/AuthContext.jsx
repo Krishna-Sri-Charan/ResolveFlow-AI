@@ -13,13 +13,23 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
 
-    localStorage.setItem("cms_user", JSON.stringify(userData));
+    localStorage.setItem(
+      "cms_user",
+      JSON.stringify(userData)
+    );
+
+    localStorage.setItem(
+      "cms_token",
+      userData.token
+    );
+
     setUser(userData);
   };
 
   const logout = () => {
 
     localStorage.removeItem("cms_user");
+    localStorage.removeItem("cms_token");
     setUser(null);
   };
 

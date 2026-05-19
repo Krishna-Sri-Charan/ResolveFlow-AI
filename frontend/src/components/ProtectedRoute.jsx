@@ -5,7 +5,9 @@ function ProtectedRoute({ children, allowedRoles }) {
 
   const { user } = useAuth();
 
-  if (!user) {
+  const token = localStorage.getItem("cms_token");
+
+  if (!user || !token) {
     return <Navigate to="/" />;
   }
 
