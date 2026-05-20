@@ -57,11 +57,6 @@ public class AuthController {
         Optional<User> user =
                 authService.findByEmail(request.getEmail());
 
-        String token =
-                jwtUtil.generateToken(
-                        user.get().getEmail()
-                );
-        
         if (
                 user.isPresent()
                         &&
@@ -70,6 +65,11 @@ public class AuthController {
                         user.get().getPassword()
                 )
         ) {
+
+            String token =
+                    jwtUtil.generateToken(
+                            user.get().getEmail()
+                    );
 
             LoginResponse response =
                     LoginResponse.builder()
@@ -86,7 +86,6 @@ public class AuthController {
                     .data(response)
                     .build();
         }
-        
 
         return ApiResponse.<LoginResponse>builder()
                 .success(false)

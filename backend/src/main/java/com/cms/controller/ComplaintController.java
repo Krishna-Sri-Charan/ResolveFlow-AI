@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/complaints")
@@ -31,35 +32,64 @@ public class ComplaintController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping(consumes = "multipart/form-data")
     public ApiResponse<Complaint> createComplaint(
+
             @RequestParam String title,
+
             @RequestParam String description,
-            @RequestParam Long userId,
-            @RequestParam(required = false) MultipartFile file
+
+            @RequestParam(required = false)
+            MultipartFile file,
+
+            Principal principal
+
     ) throws Exception {
 
-        ComplaintRequest request = new ComplaintRequest();
+        ComplaintRequest request =
+                new ComplaintRequest();
 
         request.setTitle(title);
+
         request.setDescription(description);
 
         Complaint complaint =
-                complaintService.createComplaint(request, userId, file);
+
+                complaintService.createComplaint(
+
+                        request,
+
+                        principal.getName(),
+
+                        file
+                );
 
         return ApiResponse.<Complaint>builder()
+
                 .success(true)
+
                 .message("Complaint created successfully")
+
                 .data(complaint)
+
                 .build();
     }
 
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/my")
-    public ApiResponse<List<Complaint>> getUserComplaints(@RequestParam Long userId) {
+    public ApiResponse<List<Complaint>> getMyComplaints(
+            Principal principal
+    ) {
 
         return ApiResponse.<List<Complaint>>builder()
+
                 .success(true)
-                .message("Complaints fetched successfully")
-                .data(complaintService.getUserComplaints(userId))
+
+                .message("Complaints fetched")
+
+                .data(
+                        complaintService.getUserComplaints(
+                                principal.getName()
+                        )
+                )
+
                 .build();
     }
 

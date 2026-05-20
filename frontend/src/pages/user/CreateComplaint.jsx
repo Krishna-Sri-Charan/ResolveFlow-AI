@@ -30,7 +30,6 @@ function CreateComplaint() {
 
       formData.append("title", form.title);
       formData.append("description", form.description);
-      formData.append("userId", user.id);
 
       if (file) {
         formData.append("file", file);

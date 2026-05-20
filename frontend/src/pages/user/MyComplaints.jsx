@@ -21,7 +21,7 @@ function MyComplaints() {
 
   const fetchComplaints = async () => {
     try {
-      const res = await API.get(`/complaints/my?userId=${user.id}`);
+      const res = await API.get(`/complaints/my`);
       setComplaints(res.data.data);
       setLoading(false);
     } catch (error) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextField, Button, Box, Typography, Paper, Link, Divider, Stack } from "@mui/material";
 import { Login as LoginIcon, ChevronRight } from "@mui/icons-material";
 import API from "../../services/api";
@@ -10,6 +10,39 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  useEffect(() => {
+
+    const token =
+      localStorage.getItem("cms_token");
+
+    const storedUser =
+      localStorage.getItem("cms_user");
+
+    if (!token || !storedUser) {
+
+      return;
+    }
+
+    const user =
+      JSON.parse(storedUser);
+
+    if (user.role === "ADMIN") {
+
+      navigate("/admin-dashboard");
+
+    } else if (
+      user.role === "TECHNICIAN"
+    ) {
+
+      navigate("/technician-dashboard");
+
+    } else {
+
+      navigate("/dashboard");
+    }
+
+  }, [navigate]);
 
   const handleLogin = async () => {
     

@@ -17,6 +17,10 @@ function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   // Navigation items array for cleaner code
   const menuItems = [];
@@ -120,7 +124,7 @@ function Layout({ children }) {
           {/* Logout Button */}
           <ListItem disablePadding>
             <ListItemButton 
-              onClick={() => navigate("/")}
+              onClick={handleLogout}
               sx={{ borderRadius: "12px", color: "#E53E3E" }}
             >
               <ListItemIcon sx={{ color: "#E53E3E", minWidth: 40 }}>

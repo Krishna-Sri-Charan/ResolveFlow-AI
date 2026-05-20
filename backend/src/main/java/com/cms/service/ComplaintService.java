@@ -39,11 +39,11 @@ public class ComplaintService {
 
     public Complaint createComplaint(
             ComplaintRequest request,
-            Long userId,
+            String email,
             MultipartFile file
     ) throws Exception {
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String fileName = null;
@@ -92,12 +92,24 @@ public class ComplaintService {
         return savedComplaint;
     }
 
-    public List<Complaint> getUserComplaints(Long userId) {
+    public List<Complaint> getUserComplaints(
+            String email
+    ) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user =
 
-        return complaintRepository.findByUser(user);
+                userRepository.findByEmail(email)
+
+                        .orElseThrow(() ->
+
+                                new ResourceNotFoundException(
+                                        "User not found"
+                                )
+                        );
+
+        return complaintRepository.findByUser(
+                user
+        );
     }
 
     public Complaint getComplaintById(Long id) {
