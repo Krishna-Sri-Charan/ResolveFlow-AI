@@ -69,7 +69,26 @@ public class ComplaintService {
                 .description(request.getDescription())
                 .attachmentUrl(fileName)
                 .status(ComplaintStatus.OPEN)
-                .priority(ComplaintPriority.MEDIUM)
+                .aiCategory(request.getAiCategory())
+                .priority(
+
+                	    request.getPriority() != null
+                	            &&
+                	    !request.getPriority().isBlank()
+
+                	    ?
+
+                	    ComplaintPriority.valueOf(
+
+                	            request.getPriority()
+                	                    .trim()
+                	                    .toUpperCase()
+                	    )
+
+                	    :
+
+                	    ComplaintPriority.MEDIUM
+                	)
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .build();
@@ -82,12 +101,21 @@ public class ComplaintService {
                 user
         );
         
-        emailService.sendEmail(
-                user.getEmail(),
-                "Complaint Created Successfully",
-                "Your complaint '" + complaint.getTitle()
-                        + "' has been registered successfully."
-        );
+        try {
+
+            emailService.sendEmail(
+                    user.getEmail(),
+                    "Complaint Created Successfully",
+                    "Your complaint '" + complaint.getTitle()
+                            + "' has been registered successfully."
+            );
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Email sending failed"
+            );
+        }
         
         return savedComplaint;
     }

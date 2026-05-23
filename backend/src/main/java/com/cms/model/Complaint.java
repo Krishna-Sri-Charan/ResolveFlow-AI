@@ -24,6 +24,8 @@ public class Complaint {
     @Enumerated(EnumType.STRING)
     private ComplaintStatus status;
 
+    private String aiCategory;
+    
     @Enumerated(EnumType.STRING)
     private ComplaintPriority priority;
 

@@ -29,13 +29,18 @@ public class ComplaintController {
     @Autowired
     private ComplaintUpdateService complaintUpdateService;
 
-    @PreAuthorize("hasRole('USER')")
     @PostMapping(consumes = "multipart/form-data")
     public ApiResponse<Complaint> createComplaint(
 
             @RequestParam String title,
 
             @RequestParam String description,
+            
+            @RequestParam(required = false)
+            String aiCategory,
+
+            @RequestParam(required = false)
+            String priority,
 
             @RequestParam(required = false)
             MultipartFile file,
@@ -51,6 +56,10 @@ public class ComplaintController {
 
         request.setDescription(description);
 
+        request.setAiCategory(aiCategory);
+
+        request.setPriority(priority);
+        
         Complaint complaint =
 
                 complaintService.createComplaint(
@@ -61,6 +70,7 @@ public class ComplaintController {
 
                         file
                 );
+        System.out.println(principal.getName());
 
         return ApiResponse.<Complaint>builder()
 

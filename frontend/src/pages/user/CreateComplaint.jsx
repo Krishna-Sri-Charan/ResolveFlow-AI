@@ -16,6 +16,9 @@ function CreateComplaint() {
     priority: "LOW" // Adding a default priority
   });
   const [file, setFile] = useState(null);
+  const [aiCategory, setAiCategory] = useState("");
+  const [priority, setPriority] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
   const user = JSON.parse(localStorage.getItem("cms_user"));
 
   const handleChange = (e) => {
@@ -30,6 +33,8 @@ function CreateComplaint() {
 
       formData.append("title", form.title);
       formData.append("description", form.description);
+      formData.append("aiCategory", aiCategory);
+      formData.append("priority", priority);
 
       if (file) {
         formData.append("file", file);
@@ -39,10 +44,14 @@ function CreateComplaint() {
         "/complaints",
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+  headers: {
+    Authorization:
+      `Bearer ${
+        localStorage.getItem("cms_token")
+      }`,
+    "Content-Type": "multipart/form-data",
+  },
+}
       );
 
       alert(res.data.message);
@@ -52,6 +61,49 @@ function CreateComplaint() {
     } catch (error) {
 
       alert("Failed to create complaint");
+    }
+  };
+
+  const analyzeComplaint = async () => {
+
+    if (!form.description) {
+
+      alert("Please enter complaint description");
+
+      return;
+    }
+
+    try {
+
+      setAiLoading(true);
+
+      const res = await API.post(
+        "/ai/analyze",
+        form.description,
+        {
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        }
+      );
+
+      setAiCategory(
+        res.data.data.category
+      );
+
+      setPriority(
+        res.data.data.priority
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("AI analysis failed");
+
+    } finally {
+
+      setAiLoading(false);
     }
   };
 
@@ -108,6 +160,56 @@ function CreateComplaint() {
               rows={5}
               onChange={handleChange}
             />
+
+            <Button
+              variant="contained"
+              onClick={analyzeComplaint}
+              disabled={aiLoading}
+              sx={{
+                mt: 2,
+                mb: 3,
+                bgcolor: "#7C3AED",
+                borderRadius: 2,
+              }}
+            >
+
+              {aiLoading
+                ? "Analyzing..."
+                : "Analyze with AI"}
+
+            </Button>
+
+            {aiCategory && (
+
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 3,
+                  bgcolor: "#F5F3FF",
+                  border: "1px solid #DDD6FE",
+                  mb: 3,
+                }}
+              >
+
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={700}
+                >
+                  AI Prediction
+                </Typography>
+
+                <Typography>
+                  Category:
+                  <strong> {aiCategory}</strong>
+                </Typography>
+
+                <Typography>
+                  Priority:
+                  <strong> {priority}</strong>
+                </Typography>
+
+              </Box>
+            )}
 
             <input
               type="file"
