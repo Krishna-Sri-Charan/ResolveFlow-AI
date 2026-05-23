@@ -80,6 +80,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/api/v1/auth/**",
+                                "/api/v1/ai/**",
                                 "/uploads/**"
                         ).permitAll()
 

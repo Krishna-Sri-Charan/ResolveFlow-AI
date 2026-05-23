@@ -1,16 +1,120 @@
 package com.cms.service;
 
+import com.cms.dto.AiComplaintResponse;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.http.*;
+
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.client.RestTemplate;
+
 @Service
-public class AIService {
+public class AiService {
 
-    public String predictCategory(String text) {
+    @Value("${openai.api.key}")
+    private String apiKey;
 
-        // AI integration will be implemented later
+    @Value("${openai.api.url}")
+    private String apiUrl;
 
-        return "Other";
+    public AiComplaintResponse analyzeComplaint(
+            String complaint
+    ) {
 
+        RestTemplate restTemplate =
+                new RestTemplate();
+
+        HttpHeaders headers =
+                new HttpHeaders();
+
+        headers.setContentType(
+                MediaType.APPLICATION_JSON
+        );
+
+        headers.setBearerAuth(apiKey);
+
+        String prompt = """
+                Analyze the complaint and return:
+                1. Category
+                2. Priority
+
+                Complaint:
+                %s
+
+                Return ONLY JSON format:
+                {
+                  "category": "...",
+                  "priority": "..."
+                }
+                """.formatted(complaint);
+
+        JSONObject message =
+                new JSONObject();
+
+        message.put("role", "user");
+
+        message.put("content", prompt);
+
+        JSONArray messages =
+                new JSONArray();
+
+        messages.put(message);
+
+        JSONObject requestBody =
+                new JSONObject();
+
+        requestBody.put("model", "llama-3.3-70b-versatile");
+
+        requestBody.put("messages", messages);
+
+        HttpEntity<String> request =
+                new HttpEntity<>(
+                        requestBody.toString(),
+                        headers
+                );
+
+        ResponseEntity<String> response =
+
+                restTemplate.exchange(
+
+                        apiUrl,
+
+                        HttpMethod.POST,
+
+                        request,
+
+                        String.class
+                );
+
+        JSONObject jsonResponse =
+                new JSONObject(response.getBody());
+
+        String content =
+
+                jsonResponse
+                        .getJSONArray("choices")
+                        .getJSONObject(0)
+                        .getJSONObject("message")
+                        .getString("content");
+
+        JSONObject aiJson =
+                new JSONObject(content);
+
+        return AiComplaintResponse.builder()
+
+                .category(
+                        aiJson.getString("category")
+                )
+
+                .priority(
+                        aiJson.getString("priority")
+                )
+
+                .build();
     }
-
 }
