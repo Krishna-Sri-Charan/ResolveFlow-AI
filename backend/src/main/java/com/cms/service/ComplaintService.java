@@ -36,6 +36,9 @@ public class ComplaintService {
     
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     public Complaint createComplaint(
             ComplaintRequest request,
@@ -176,6 +179,12 @@ public class ComplaintService {
                         + technician.getName()
         );
         
+        notificationService.sendNotification(
+                "Complaint #" + complaint.getId()
+                        + " assigned to "
+                        + technician.getName()
+        );
+        
         return complaintRepository.save(complaint);
     }
     
@@ -186,10 +195,15 @@ public class ComplaintService {
 
         complaint.setStatus(status);
         
-        complaintUpdateService.addUpdate(
-                complaint,
-                "Status changed to " + status,
-                complaint.getUser()
+        notificationService.sendNotification(
+                "Complaint #" + complaint.getId()
+                        + " updated to "
+                        + status
+        );
+        
+        notificationService.sendNotification(
+                "Complaint status updated to "
+                        + status
         );
         
         if (status == ComplaintStatus.RESOLVED) {

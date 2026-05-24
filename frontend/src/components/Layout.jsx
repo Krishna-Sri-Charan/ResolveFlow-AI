@@ -1,8 +1,8 @@
-import React from "react";
+import { React, useEffect, useState } from "react";
 import { 
   AppBar, Toolbar, Typography, Drawer, List, 
   ListItem, ListItemButton, ListItemIcon, ListItemText, 
-  Box, CssBaseline, Divider, Avatar 
+  Box, CssBaseline, Divider, Avatar, Snackbar, Alert
 } from "@mui/material";
 import { 
   Dashboard, AddCircle, ListAlt, AdminPanelSettings, 
@@ -10,6 +10,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import stompClient from "../services/socket";
 
 const drawerWidth = 260; // Slightly wider for better text breathing room
 
@@ -17,10 +18,35 @@ function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [notification, setNotification] = useState("");
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+
+  useEffect(() => {
+
+    stompClient.onConnect = () => {
+
+      stompClient.subscribe(
+
+        "/topic/notifications",
+
+        (message) => {
+
+          setNotification(message.body);
+        }
+      );
+    };
+
+    stompClient.activate();
+
+    return () => {
+
+      stompClient.deactivate();
+    };
+
+  }, []);
 
   // Navigation items array for cleaner code
   const menuItems = [];
@@ -148,6 +174,21 @@ function Layout({ children }) {
       >
         {children}
       </Box>
+
+      <Snackbar
+        open={!!notification}
+        autoHideDuration={4000}
+        onClose={() => setNotification("")}
+      >
+
+        <Alert
+          severity="info"
+          variant="filled"
+        >
+          {notification}
+        </Alert>
+
+      </Snackbar>
     </Box>
   );
 }
