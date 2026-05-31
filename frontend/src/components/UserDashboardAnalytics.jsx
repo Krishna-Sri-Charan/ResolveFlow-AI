@@ -7,6 +7,7 @@ import {
   CheckCircleOutline,
 } from "@mui/icons-material";
 import API from "../services/api";
+import UserStatusChart from "./charts/UserStatusChart";
 
 function UserDashboardAnalytics() {
   const [stats, setStats] = useState(null);
@@ -122,6 +123,19 @@ function UserDashboardAnalytics() {
           </Grid>
         ))}
       </Grid>
+      
+      <Typography
+        variant="h6"
+        fontWeight={700}
+        mb={2}
+      >
+        Complaint Status Overview
+      </Typography>
+
+      <UserStatusChart
+        analytics={stats}
+      />
+
     </Box>
   );
 }
