@@ -2,6 +2,8 @@ package com.cms.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,6 +17,16 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
     List<Complaint> findByUser(User user);
 
     List<Complaint> findByTechnician(User technician);
+    
+    Page<Complaint> findByUserId(
+            Long userId,
+            Pageable pageable
+    );
+
+    Page<Complaint> findByTechnicianId(
+            Long technicianId,
+            Pageable pageable
+    );
     
     long countByStatus(ComplaintStatus status);
 

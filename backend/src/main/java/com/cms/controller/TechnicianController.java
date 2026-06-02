@@ -8,10 +8,10 @@ import com.cms.service.ComplaintUpdateService;
 import com.cms.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/technician")
@@ -28,9 +28,9 @@ public class TechnicianController {
     private UserRepository userRepository;
 
     @GetMapping("/complaints")
-    public List<Complaint> getAssignedComplaints(@RequestParam Long technicianId) {
+    public Page<Complaint> getAssignedComplaints(@RequestParam Long technicianId, Pageable pageable) {
 
-        return complaintService.getTechnicianComplaints(technicianId);
+        return complaintService.getTechnicianComplaints(technicianId, pageable);
     }
 
     @PutMapping("/update-status")

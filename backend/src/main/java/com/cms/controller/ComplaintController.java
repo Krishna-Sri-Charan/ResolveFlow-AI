@@ -88,11 +88,11 @@ public class ComplaintController {
     }
 
     @GetMapping("/my")
-    public ApiResponse<List<Complaint>> getMyComplaints(
-            Principal principal
+    public ApiResponse<Page<Complaint>> getMyComplaints(
+            Principal principal, Pageable pageable
     ) {
 
-        return ApiResponse.<List<Complaint>>builder()
+        return ApiResponse.<Page<Complaint>>builder()
 
                 .success(true)
 
@@ -100,7 +100,8 @@ public class ComplaintController {
 
                 .data(
                         complaintService.getUserComplaints(
-                                principal.getName()
+                                principal.getName(),
+                                pageable
                         )
                 )
 

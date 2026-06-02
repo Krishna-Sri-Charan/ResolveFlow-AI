@@ -125,8 +125,9 @@ public class ComplaintService {
         return savedComplaint;
     }
 
-    public List<Complaint> getUserComplaints(
-            String email
+    public Page<Complaint> getUserComplaints(
+            String email,
+            Pageable pageable
     ) {
 
         User user =
@@ -140,8 +141,9 @@ public class ComplaintService {
                                 )
                         );
 
-        return complaintRepository.findByUser(
-                user
+        return complaintRepository.findByUserId(
+                user.getId(),
+                pageable
         );
     }
 
@@ -238,12 +240,9 @@ public class ComplaintService {
 
     }
     
-    public List<Complaint> getTechnicianComplaints(Long technicianId) {
+    public Page<Complaint> getTechnicianComplaints(Long technicianId, Pageable pageable) {
 
-        User technician = userRepository.findById(technicianId)
-                .orElseThrow(() -> new ResourceNotFoundException("Technician not found"));
-
-        return complaintRepository.findByTechnician(technician);
+        return complaintRepository.findByTechnicianId(technicianId, pageable);
     }
     
     public List<Complaint> searchComplaints(

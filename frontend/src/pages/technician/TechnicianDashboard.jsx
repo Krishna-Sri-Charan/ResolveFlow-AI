@@ -15,6 +15,7 @@ import Layout from "../../components/Layout";
 import { useNavigate } from "react-router-dom";
 import TechnicianDashboardAnalytics from "../../components/TechnicianDashboardAnalytics";
 import Menu from "@mui/material/Menu";
+import Pagination from "@mui/material/Pagination";
 
 function TechnicianDashboard() {
   const [complaints, setComplaints] = useState([]);
@@ -25,12 +26,14 @@ function TechnicianDashboard() {
   const [inputValue, setInputValue] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   
   const user = JSON.parse(localStorage.getItem("cms_user"));
 
   useEffect(() => {
     fetchComplaints();
-  }, []);
+  }, [page]);
 
   const handleMenuOpen = (event, complaintId) => {
     event.stopPropagation();
@@ -44,8 +47,9 @@ function TechnicianDashboard() {
 
   const fetchComplaints = async () => {
     try {
-      const res = await API.get(`/technician/complaints?technicianId=${user.id}`);
-      setComplaints(res.data || []);
+      const res = await API.get(`/technician/complaints?technicianId=${user.id}&&page=${page}&size=12`);
+      setComplaints(res.data.content || []);
+      setTotalPages(res.data.totalPages || 0);
     } catch (error) {
       console.log(error);
       setComplaints([]);
@@ -373,6 +377,25 @@ function TechnicianDashboard() {
             })}
           </Grid>
         )}
+
+        <Box
+          display="flex"
+          justifyContent="center"
+          mt={4}
+        >
+
+          <Pagination
+            count={totalPages}
+            page={page + 1}
+            onChange={(_, value) => {
+
+              setPage(value - 1);
+
+            }}
+            color="primary"
+          />
+
+        </Box>
 
         <Menu
           anchorEl={anchorEl}

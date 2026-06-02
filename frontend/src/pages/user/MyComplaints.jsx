@@ -27,6 +27,7 @@ import {
 import API from "../../services/api";
 import Layout from "../../components/Layout";
 import { useNavigate } from "react-router-dom";
+import Pagination from "@mui/material/Pagination";
 
 function MyComplaints() {
   const [complaints, setComplaints] = useState([]);
@@ -34,15 +35,18 @@ function MyComplaints() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const navigate = useNavigate();
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     fetchComplaints();
-  }, []);
+  }, [page]);
 
   const fetchComplaints = async () => {
     try {
-      const res = await API.get(`/complaints/my`);
-      setComplaints(res.data.data);
+      const res = await API.get(`/complaints/my?page=${page}&size=12`);
+      setComplaints(res.data.data.content || []);
+      setTotalPages(res.data.data.totalPages || 0);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -378,6 +382,25 @@ function MyComplaints() {
                 );
               })}
             </Grid>
+
+            <Box
+              display="flex"
+              justifyContent="center"
+              mt={4}
+            >
+
+              <Pagination
+                count={totalPages}
+                page={page + 1}
+                onChange={(_, value) => {
+
+                  setPage(value - 1);
+
+                }}
+                color="primary"
+              />
+
+            </Box>
 
             {/* Single Menu instance — outside the map loop */}
             <Menu

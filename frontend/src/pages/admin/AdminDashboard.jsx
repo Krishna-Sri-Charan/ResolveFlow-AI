@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import Menu from "@mui/material/Menu";
 import AdminDashboardAnalytics from "../../components/AdminDashboardAnalytics";
 import TechnicianPerformanceTable from "../../components/TechnicianPerformanceTable";
+import Pagination from "@mui/material/Pagination";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -29,10 +30,12 @@ function AdminDashboard() {
   const [priority, setPriority] = useState("MEDIUM");
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     fetchComplaints();
-  }, []);
+  }, [page]);
 
   const handleMenuOpen = (event, complaintId) => {
     event.stopPropagation();
@@ -46,8 +49,9 @@ function AdminDashboard() {
 
   const fetchComplaints = async () => {
     try {
-      const res = await API.get("/complaints");
+      const res = await API.get(`/complaints?page=${page}&size=12`);
       setComplaints(res.data.data.content);
+      setTotalPages(res.data.data.totalPages);
     } catch (error) {
       console.log(error);
     }
@@ -463,6 +467,25 @@ function AdminDashboard() {
               );
             })}
           </Grid>
+        </Box>
+
+        <Box
+          display="flex"
+          justifyContent="center"
+          mt={4}
+        >
+
+          <Pagination
+            count={totalPages}
+            page={page + 1}
+            onChange={(_, value) => {
+
+              setPage(value - 1);
+
+            }}
+            color="primary"
+          />
+
         </Box>
 
         <Menu
