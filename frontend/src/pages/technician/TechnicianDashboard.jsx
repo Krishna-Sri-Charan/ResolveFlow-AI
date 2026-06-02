@@ -14,6 +14,7 @@ import API from "../../services/api";
 import Layout from "../../components/Layout";
 import { useNavigate } from "react-router-dom";
 import TechnicianDashboardAnalytics from "../../components/TechnicianDashboardAnalytics";
+import Menu from "@mui/material/Menu";
 
 function TechnicianDashboard() {
   const [complaints, setComplaints] = useState([]);
@@ -22,16 +23,28 @@ function TechnicianDashboard() {
   const [modalType, setModalType] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [inputValue, setInputValue] = useState("");
-
-  const TECH_ID = 4;
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  
+  const user = JSON.parse(localStorage.getItem("cms_user"));
 
   useEffect(() => {
     fetchComplaints();
   }, []);
 
+  const handleMenuOpen = (event, complaintId) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setSelectedComplaint(complaintId);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const fetchComplaints = async () => {
     try {
-      const res = await API.get(`/technician/complaints?technicianId=${TECH_ID}`);
+      const res = await API.get(`/technician/complaints?technicianId=${user.id}`);
       setComplaints(res.data || []);
     } catch (error) {
       console.log(error);
@@ -51,7 +64,7 @@ function TechnicianDashboard() {
       if (modalType === "STATUS") {
         await API.put(`/technician/update-status?complaintId=${selectedId}&status=${inputValue}`);
       } else {
-        await API.post(`/technician/add-update?complaintId=${selectedId}&technicianId=${TECH_ID}&message=${inputValue}`);
+        await API.post(`/technician/add-update?complaintId=${selectedId}&technicianId=${user.id}&message=${inputValue}`);
       }
       setOpenModal(false);
       fetchComplaints();
@@ -204,7 +217,6 @@ function TechnicianDashboard() {
                         boxShadow: "0px 12px 32px rgba(0,0,0,0.08)",
                       },
                     }}
-                    onClick={() => navigate(`/complaints/${c.id}/`)}
                   >
                     <CardContent
                       sx={{
@@ -253,24 +265,22 @@ function TechnicianDashboard() {
                           />
                         </Stack>
 
-                        <Tooltip title="More options">
-                          <IconButton
-                            size="small"
-                            onClick={(e) => e.stopPropagation()}
-                            sx={{
-                              ml: 1,
-                              flexShrink: 0,
-                              border: "1px solid #e2e8f0",
-                              borderRadius: "8px",
-                              width: 28,
-                              height: 28,
-                              color: "#94a3b8",
-                              "&:hover": { bgcolor: "#f1f5f9", color: "#475569" },
-                            }}
-                          >
-                            <MoreVert sx={{ fontSize: 16 }} />
-                          </IconButton>
-                        </Tooltip>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleMenuOpen(e, c.id)}
+                          sx={{
+                            ml: 1,
+                            flexShrink: 0,
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "8px",
+                            width: 28,
+                            height: 28,
+                            color: "#94a3b8",
+                            "&:hover": { bgcolor: "#f1f5f9", color: "#475569" },
+                          }}
+                        >
+                          <MoreVert sx={{ fontSize: 16 }} />
+                        </IconButton>
                       </Stack>
 
                       {/* Row 2: Title — 1 line, ellipsis */}
@@ -363,6 +373,23 @@ function TechnicianDashboard() {
             })}
           </Grid>
         )}
+
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem
+            onClick={() => {
+              navigate(
+                `/complaints/${selectedComplaint}`
+              );
+              handleMenuClose();
+            }}
+          >
+            View Details
+          </MenuItem>
+        </Menu>
 
         {/* Modal */}
         <Dialog

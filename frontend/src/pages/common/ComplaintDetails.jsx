@@ -10,7 +10,7 @@ import {
   Button,
   CircularProgress,
   Alert,
-  Avatar,
+  Avatar, TextField, Menu, MenuItem
 } from "@mui/material";
 
 import {
@@ -25,7 +25,7 @@ import {
   ErrorOutline,
   RadioButtonUnchecked,
   HistoryOutlined,
-  InfoOutlined,
+  InfoOutlined, Timeline, History, AccessTimeOutlined
 } from "@mui/icons-material";
 
 import { useEffect, useState } from "react";
@@ -40,6 +40,8 @@ function ComplaintDetails() {
   const [complaint, setComplaint] = useState(null);
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -49,8 +51,10 @@ function ComplaintDetails() {
     try {
       const complaintRes = await API.get(`/complaints/${id}`);
       const updatesRes = await API.get(`/complaints/${id}/updates`);
+      const commentsRes = await API.get(`/comments/${id}`);
       setComplaint(complaintRes.data.data);
       setUpdates(updatesRes.data || []);
+      setComments(commentsRes.data.data || []);
     } catch (error) {
       console.log(error);
     } finally {
@@ -111,6 +115,28 @@ function ComplaintDetails() {
       {children}
     </Box>
   );
+
+  const addComment = async () => {
+
+    try {
+
+      await API.post(
+        "/comments",
+        {
+          complaintId: id,
+          message: commentText
+        }
+      );
+
+      setCommentText("");
+
+      fetchData();
+
+    } catch(error) {
+
+      console.log(error);
+    }
+  };
 
   if (loading) {
     return (
@@ -431,6 +457,85 @@ function ComplaintDetails() {
                   </Stack>
                 )}
               </CardContent>
+            </Card>
+
+            <Card
+              sx={{
+                borderRadius: 4,
+                mt: 3
+              }}
+            >
+
+              <CardContent>
+
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                  mb={2}
+                >
+                  Comments
+                </Typography>
+
+                {comments.map(comment => (
+
+                  <Box
+                    key={comment.id}
+                    mb={2}
+                  >
+
+                    <Typography
+                      fontWeight={600}
+                    >
+                      {comment.user?.name}
+                    </Typography>
+
+                    <Typography>
+                      {comment.message}
+                    </Typography>
+
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                    >
+                      {
+                        new Date(
+                          comment.createdAt
+                        ).toLocaleString()
+                      }
+                    </Typography>
+
+                    <Divider
+                      sx={{ mt: 1 }}
+                    />
+
+                  </Box>
+
+                ))}
+
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label="Add Comment"
+                  value={commentText}
+                  onChange={(e) =>
+                    setCommentText(
+                      e.target.value
+                    )
+                  }
+                  sx={{ mt: 2 }}
+                />
+
+                <Button
+                  variant="contained"
+                  sx={{ mt: 2 }}
+                  onClick={addComment}
+                >
+                  Post Comment
+                </Button>
+
+              </CardContent>
+
             </Card>
           </Grid>
 
