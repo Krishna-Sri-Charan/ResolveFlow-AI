@@ -48,12 +48,15 @@ function AdminStatusChart({ analytics }) {
         borderRadius: 3,
         border: "1px solid #f1f5f9",
         boxShadow: "0px 4px 20px rgba(0,0,0,0.04)",
-        height: "100%",
+        height: 420, // Match the exact fixed pixel bounds of your bar chart!
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <CardContent sx={{ p: 3 }}>
+      <CardContent sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
         {/* Header */}
-        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
+        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
           <Box
             sx={{
               width: 36,
@@ -77,8 +80,8 @@ function AdminStatusChart({ analytics }) {
           </Box>
         </Stack>
 
-        {/* Chart with center label */}
-        <Box sx={{ position: "relative" }}>
+        {/* Chart Container View */}
+        <Box sx={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", alignItems: "center", flexGrow: 1 }}>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
@@ -97,7 +100,7 @@ function AdminStatusChart({ analytics }) {
             </PieChart>
           </ResponsiveContainer>
 
-          {/* Center total label */}
+          {/* Absolute Center Counter Indicator Overlay */}
           <Box
             sx={{
               position: "absolute",
@@ -117,8 +120,8 @@ function AdminStatusChart({ analytics }) {
           </Box>
         </Box>
 
-        {/* Legend */}
-        <Stack spacing={1.5} sx={{ mt: 2.5 }}>
+        {/* Bottom Legend List mapped out to ground cleanly */}
+        <Stack spacing={1} sx={{ mt: 1 }}>
           {data.map((item, i) => {
             const cfg = COLORS[i];
             const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;

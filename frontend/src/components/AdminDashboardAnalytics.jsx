@@ -90,12 +90,21 @@ function AdminDashboardAnalytics() {
     }
   };
 
-  const monthlyData = analytics
-    ? Object.entries(analytics.monthlyComplaints).map(([month, complaints]) => ({
-        month,
-        complaints,
-      }))
-    : [];
+  // Pre-define all 12 months in order
+  const ALL_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  // Merge backend data with ALL_MONTHS to ensure missing ones show up as 0
+  const monthlyData = ALL_MONTHS.map((month) => {
+    // Check if backend returned data for this month, otherwise default to 0
+    const complaintCount = analytics?.monthlyComplaints && analytics.monthlyComplaints[month] !== undefined
+      ? analytics.monthlyComplaints[month]
+      : 0;
+
+    return {
+      month,
+      complaints: complaintCount,
+    };
+  });
 
   const statCards = [
     {
@@ -122,7 +131,6 @@ function AdminDashboardAnalytics() {
       bg: "#fffbeb",
       border: "#fde68a",
     },
-
     {
       label: "Avg Resolution",
       value: `${stats?.averageResolutionTime || 0}h`,
@@ -150,7 +158,7 @@ function AdminDashboardAnalytics() {
   ];
 
   return (
-    <Box sx={{ mt: 5 }}>
+    <Box sx={{ mb: 5 }}>
       {/* Section Label */}
       <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 800, color: "#0f172a" }}>
@@ -172,15 +180,18 @@ function AdminDashboardAnalytics() {
       </Stack>
 
       {/* Stat Cards */}
-      <Grid container spacing={3}>
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         {statCards.map((card, i) => (
-          <Grid size={{ xs: 12, md: 4 }} key={i}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={i} sx={{ display: "flex" }}>
             <Card
               sx={{
                 borderRadius: 3,
                 border: `1px solid ${card.border}`,
                 bgcolor: card.bg,
                 boxShadow: "none",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
                 transition: "transform 0.2s",
                 "&:hover": {
                   transform: "translateY(-3px)",
@@ -188,7 +199,7 @@ function AdminDashboardAnalytics() {
                 },
               }}
             >
-              <CardContent sx={{ p: 3 }}>
+              <CardContent sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography
@@ -234,18 +245,22 @@ function AdminDashboardAnalytics() {
         ))}
       </Grid>
 
-      {/* Charts */}
-      <Grid container spacing={3} sx={{ mt: 0.5 }}>
-        {/* Bar Chart */}
-        <Grid item xs={12} md={7}>
+      {/* Charts Layer */}
+      <Grid container spacing={3} sx={{ mt: 0.5, width: "100%" }}>
+        {/* Bar Chart Section */}
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
           <Card
             sx={{
+              height: 420,
+              width: "100%",
               borderRadius: 3,
               border: "1px solid #f1f5f9",
               boxShadow: "0px 4px 20px rgba(0,0,0,0.04)",
+              display: "flex",
+              flexDirection: "column"
             }}
           >
-            <CardContent sx={{ p: 3 }}>
+            <CardContent sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column"}}>
               <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
                 <Box
                   sx={{
@@ -270,33 +285,35 @@ function AdminDashboardAnalytics() {
                 </Box>
               </Stack>
 
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={monthlyData} barSize={28}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tick={{ fontSize: 12, fill: "#94a3b8", fontWeight: 600 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 12, fill: "#94a3b8" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    content={<CustomBarTooltip />}
-                    cursor={{ fill: "#f1f5f9", radius: 8 }}
-                  />
-                  <Bar dataKey="complaints" fill="#6366f1" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <Box sx={{ flexGrow: 1, width: "100%", height: 280 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyData} barSize={20}> {/* Adjusted barSize slightly down so 12 bars breathe nicely */}
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 12, fill: "#94a3b8" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      content={<CustomBarTooltip />}
+                      cursor={{ fill: "#f1f5f9", radius: 8 }}
+                    />
+                    <Bar dataKey="complaints" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Donut Chart — AdminStatusChart */}
-        <Grid item xs={12} md={5}>
+        {/* Donut Chart Section */}
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex" }}>
           <AdminStatusChart analytics={analytics} />
         </Grid>
       </Grid>

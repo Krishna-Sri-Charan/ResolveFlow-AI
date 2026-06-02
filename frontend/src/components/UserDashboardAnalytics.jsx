@@ -62,15 +62,19 @@ function UserDashboardAnalytics() {
 
   return (
     <Box sx={{ mb: 5 }}>
+      {/* Grid Track using size parameters */}
       <Grid container spacing={3}>
         {cards.map((card) => (
-          <Grid item xs={12} sm={6} md={3} key={card.title}>
+          <Grid item xs={12} sm={6} md={3} key={card.title} sx={{ display: "flex" }}>
             <Card
               sx={{
                 borderRadius: 3,
                 border: `1px solid ${card.border}`,
                 bgcolor: card.bg,
                 boxShadow: "none",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
                 transition: "transform 0.2s",
                 "&:hover": {
                   transform: "translateY(-3px)",
@@ -78,7 +82,7 @@ function UserDashboardAnalytics() {
                 },
               }}
             >
-              <CardContent sx={{ p: 3 }}>
+              <CardContent sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                   <Box>
                     <Typography
@@ -124,19 +128,19 @@ function UserDashboardAnalytics() {
         ))}
       </Grid>
       
+      {/* Dynamic Header */}
       <Typography
         variant="h6"
-        fontWeight={700}
-        paddingTop={2}
-        mb={2}
+        fontWeight={800}
+        sx={{ color: "#0f172a", mt: 4, mb: 2 }}
       >
         Complaint Status Overview
       </Typography>
 
-      <UserStatusChart
-        analytics={stats}
-      />
-
+      {/* Restricting maximum container layout expansion width to prevent white space leaks */}
+      <Box sx={{ maxWidth: { xs: "100%", md: "50%" } }}>
+        <UserStatusChart analytics={stats} />
+      </Box>
     </Box>
   );
 }

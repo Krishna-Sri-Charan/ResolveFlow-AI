@@ -27,7 +27,7 @@ function TechnicianDashboardAnalytics() {
   const cards = [
     {
       title: "Assigned",
-      value: stats?.assigned || 0,
+      value: stats?.assignedComplaints || 0,
       icon: <AssignmentOutlined sx={{ fontSize: 22 }} />,
       color: "#3b82f6",
       bg: "#eff6ff",
@@ -35,7 +35,7 @@ function TechnicianDashboardAnalytics() {
     },
     {
       title: "In Progress",
-      value: stats?.inProgress || 0,
+      value: stats?.inProgressComplaints || 0,
       icon: <LoopOutlined sx={{ fontSize: 22 }} />,
       color: "#f59e0b",
       bg: "#fffbeb",
@@ -43,7 +43,7 @@ function TechnicianDashboardAnalytics() {
     },
     {
       title: "Resolved",
-      value: stats?.resolved || 0,
+      value: stats?.resolvedComplaints || 0,
       icon: <CheckCircleOutline sx={{ fontSize: 22 }} />,
       color: "#10b981",
       bg: "#ecfdf5",
@@ -51,7 +51,10 @@ function TechnicianDashboardAnalytics() {
     },
     {
       title: "Completion Rate",
-      value: stats?.completionRate !== undefined && stats.assigned ? `${stats.completionRate}%` : "0%",
+      value:
+        stats?.completionRate !== undefined
+          ? `${stats.completionRate.toFixed(1)}%`
+          : "0%",
       icon: <TrendingUpOutlined sx={{ fontSize: 22 }} />,
       color: "#8b5cf6",
       bg: "#f5f3ff",
