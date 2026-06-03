@@ -17,10 +17,10 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AiService {
 
-    @Value("${openai.api.key}")
+    @Value("${groq.api.key}")
     private String apiKey;
 
-    @Value("${openai.api.url}")
+    @Value("${groq.api.url}")
     private String apiUrl;
 
     public AiComplaintResponse analyzeComplaint(
