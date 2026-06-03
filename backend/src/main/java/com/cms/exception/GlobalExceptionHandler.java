@@ -5,25 +5,36 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import com.cms.dto.ApiResponse;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<ApiResponse<Object>> handleResourceNotFound(
+	        ResourceNotFoundException ex
+	) {
 
-        Map<String, Object> error = new HashMap<>();
+	    return ResponseEntity
+	            .status(HttpStatus.NOT_FOUND)
+	            .body(
 
-        error.put("timestamp", LocalDateTime.now());
-        error.put("status", HttpStatus.NOT_FOUND.value());
-        error.put("error", "Resource Not Found");
-        error.put("message", ex.getMessage());
+	                    ApiResponse.builder()
 
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
+	                            .success(false)
+
+	                            .message(
+	                                    ex.getMessage()
+	                            )
+
+	                            .data(null)
+
+	                            .build()
+	            );
+	}
     
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -37,16 +48,29 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+    public ResponseEntity<ApiResponse<Object>> handleGenericException(
+            Exception ex
+    ) {
 
-        Map<String, Object> error = new HashMap<>();
+        return ResponseEntity
+                .status(
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                )
 
-        error.put("timestamp", LocalDateTime.now());
-        error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        error.put("error", "Internal Server Error");
-        error.put("message", ex.getMessage());
+                .body(
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+                        ApiResponse.builder()
+
+                                .success(false)
+
+                                .message(
+                                        ex.getMessage()
+                                )
+
+                                .data(null)
+
+                                .build()
+                );
     }
     
 }
