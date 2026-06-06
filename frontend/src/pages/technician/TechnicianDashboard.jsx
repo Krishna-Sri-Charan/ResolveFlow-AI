@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Box, Typography, Card, CardContent, Button,
   Stack, Chip, Grid, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, MenuItem,
-  Divider, IconButton, Tooltip,
+  Divider, IconButton,
 } from "@mui/material";
 import {
   Update, RateReview,
@@ -35,10 +35,6 @@ function TechnicianDashboard() {
   
   const user = JSON.parse(localStorage.getItem("cms_user"));
 
-  useEffect(() => {
-    fetchComplaints();
-  }, [page]);
-
   const handleMenuOpen = (event, complaintId) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
@@ -49,7 +45,7 @@ function TechnicianDashboard() {
     setAnchorEl(null);
   };
 
-  const fetchComplaints = async () => {
+  const fetchComplaints = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -64,7 +60,11 @@ function TechnicianDashboard() {
       setLoading(false);
       setError("");
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    fetchComplaints();
+  }, [fetchComplaints]);
 
   const handleOpenModal = (id, type) => {
     setSelectedId(id);

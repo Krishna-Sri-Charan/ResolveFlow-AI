@@ -14,8 +14,6 @@ import ErrorMessage from "./ErrorMessage";
 
 function UserDashboardAnalytics() {
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchStats();
@@ -26,10 +24,7 @@ function UserDashboardAnalytics() {
       const res = await API.get("/analytics/my-dashboard");
       setStats(res.data.data);
     } catch (error) {
-      setError("Failed to fetch analytics data.");
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
 

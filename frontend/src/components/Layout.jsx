@@ -3,16 +3,15 @@ import {
   AppBar, Toolbar, Typography, Drawer, List,
   ListItem, ListItemButton, ListItemIcon, ListItemText,
   Box, CssBaseline, Divider, Avatar, Snackbar, Alert,
-  Stack, Chip, Tooltip,
+  Stack, Chip,
 } from "@mui/material";
 import {
   Dashboard, AddCircle, ListAlt, AdminPanelSettings,
-  Engineering, Logout, NotificationsOutlined, Person
+  Engineering, Logout, Person
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import stompClient from "../services/socket";
-import { logout } from "../utils/auth";
 
 const drawerWidth = 260;
 

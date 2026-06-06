@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Typography,
   Paper,
   Stack,
-  CircularProgress,
   Chip,
   Avatar,
   Skeleton,
@@ -28,11 +27,7 @@ function ComplaintTimeline() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchTimeline();
-  }, []);
-
-  const fetchTimeline = async () => {
+  const fetchTimeline = useCallback(async () => {
     try {
       const res = await API.get(`/complaints/${id}/updates`);
       setUpdates(res.data);
@@ -43,7 +38,11 @@ function ComplaintTimeline() {
       setLoading(false);
       setError("");
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchTimeline();
+  }, [fetchTimeline]);
 
   const getStepColor = (index, total) => {
     if (index === total - 1) return "#6366f1"; // latest

@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Box, Typography, Card, CardContent, Button,
   Stack, Chip, Grid, Dialog,
-  DialogTitle, DialogContent, DialogActions, TextField, MenuItem, InputAdornment,
-  Avatar, Divider, IconButton, Tooltip,
+  DialogTitle, DialogContent, DialogActions, TextField, MenuItem, InputAdornment, 
+  Divider, IconButton,
 } from "@mui/material";
 import {
-  AssignmentInd, Update, FilterList,
+  Update, FilterList,
   AdminPanelSettings, Engineering, SearchOutlined,
-  MoreVert, FlagOutlined, RefreshOutlined,
+  MoreVert, FlagOutlined,
 } from "@mui/icons-material";
 import API from "../../services/api";
 import Layout from "../../components/Layout";
@@ -37,10 +37,6 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchComplaints();
-  }, [page]);
-
   const handleMenuOpen = (event, complaintId) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
@@ -51,7 +47,7 @@ function AdminDashboard() {
     setAnchorEl(null);
   };
 
-  const fetchComplaints = async () => {
+  const fetchComplaints = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -64,7 +60,11 @@ function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    fetchComplaints();
+  }, [page]);
 
   const handleOpenModal = (id, type) => {
     setSelectedId(id);

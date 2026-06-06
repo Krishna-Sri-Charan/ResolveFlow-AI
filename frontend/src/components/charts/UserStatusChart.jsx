@@ -10,7 +10,6 @@ const COLORS = [
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
-    const cfg = COLORS.find((c) => c.color === payload[0].payload.fill) || COLORS[0];
     return (
       <Box
         sx={{

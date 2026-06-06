@@ -13,10 +13,7 @@ import {
 import {
   AddCircleOutline,
   History,
-  Assessment,
-  HelpOutline,
-  TrendingUp,
-  ArrowUpward, AccountCircle,
+  AccountCircle,
 } from "@mui/icons-material";
 import Layout from "../../components/Layout";
 import UserDashboardAnalytics from "../../components/UserDashboardAnalytics";

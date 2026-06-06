@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   TextField, Button, Box, Typography, Paper,
-  Link, Divider, Stack, InputAdornment, IconButton,
+  Link, Stack, InputAdornment, IconButton,
 } from "@mui/material";
 import {
   Login as LoginIcon, EmailOutlined,

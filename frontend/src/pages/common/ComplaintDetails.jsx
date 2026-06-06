@@ -1,3 +1,6 @@
+import { useEffect, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
+
 import {
   Box,
   Card,
@@ -10,7 +13,7 @@ import {
   Button,
   CircularProgress,
   Alert,
-  Avatar, TextField, Menu, MenuItem
+  Avatar, TextField
 } from "@mui/material";
 
 import {
@@ -25,11 +28,8 @@ import {
   ErrorOutline,
   RadioButtonUnchecked,
   HistoryOutlined,
-  InfoOutlined, Timeline, History, AccessTimeOutlined
+  InfoOutlined
 } from "@mui/icons-material";
-
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 
 import Layout from "../../components/Layout";
 import API from "../../services/api";
@@ -44,14 +44,9 @@ function ComplaintDetails() {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [error, setError] = useState("");
-  const [anchorEl, setAnchorEl] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const complaintRes = await API.get(`/complaints/${id}`);
       const updatesRes = await API.get(`/complaints/${id}/updates`);
@@ -65,7 +60,11 @@ function ComplaintDetails() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+  
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const getStatusConfig = (status) => {
     switch (status) {

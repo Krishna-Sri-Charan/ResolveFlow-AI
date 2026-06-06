@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -41,11 +41,7 @@ function MyComplaints() {
   const [totalPages, setTotalPages] = useState(0);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchComplaints();
-  }, [page]);
-
-  const fetchComplaints = async () => {
+  const fetchComplaints = useCallback(async () => {
     try {
       const res = await API.get(`/complaints/my?page=${page}&size=12`);
       setComplaints(res.data.data.content || []);
@@ -57,7 +53,11 @@ function MyComplaints() {
       setLoading(false);
       setError("");
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    fetchComplaints();
+  }, [fetchComplaints]);
 
   const handleMenuOpen = (event, complaintId) => {
     event.stopPropagation();
