@@ -3,7 +3,8 @@ import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
 const socket = new SockJS(
-  "http://localhost:8080/ws"
+  process.env.REACT_APP_WS_URL ||
+   "http://localhost:8080/ws"
 );
 
 const stompClient = new Client({
