@@ -44,7 +44,6 @@ function ComplaintDetails() {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [error, setError] = useState("");
-  const [actionLoading, setActionLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -140,9 +139,6 @@ function ComplaintDetails() {
 
       console.log(error);
       setError("Failed to add comment.");
-    }
-    finally {
-      setActionLoading(false);
     }
   };
 

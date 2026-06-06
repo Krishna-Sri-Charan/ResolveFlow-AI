@@ -60,7 +60,7 @@ function TechnicianDashboard() {
       setLoading(false);
       setError("");
     }
-  }, [page]);
+  }, [user.id, page]);
 
   useEffect(() => {
     fetchComplaints();

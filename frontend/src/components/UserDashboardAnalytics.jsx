@@ -8,9 +8,6 @@ import {
 } from "@mui/icons-material";
 import API from "../services/api";
 import UserStatusChart from "./charts/UserStatusChart";
-import Layout from "./Layout";
-import CommonLoader from "./CommonLoader";
-import ErrorMessage from "./ErrorMessage";
 
 function UserDashboardAnalytics() {
   const [stats, setStats] = useState(null);

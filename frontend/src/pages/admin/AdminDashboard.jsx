@@ -64,7 +64,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     fetchComplaints();
-  }, [page]);
+  }, [fetchComplaints]);
 
   const handleOpenModal = (id, type) => {
     setSelectedId(id);
