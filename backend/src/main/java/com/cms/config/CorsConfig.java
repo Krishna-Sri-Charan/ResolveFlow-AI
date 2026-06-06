@@ -11,27 +11,37 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Bean
-    public CorsFilter corsFilter() {
+	@Bean
+	public CorsFilter corsFilter() {
 
-        CorsConfiguration config =
-                new CorsConfiguration();
+	    CorsConfiguration config =
+	            new CorsConfiguration();
 
-        config.setAllowedOriginPatterns(
-                List.of(
-                        "http://localhost:3000",
-                        "https://*.vercel.app"
-                )
-        );
+	    config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+	    config.setAllowedOriginPatterns(
+	            List.of(
+	                    "http://localhost:3000",
+	                    "https://resolveflow-ai.vercel.app"
+	            )
+	    );
 
-        source.registerCorsConfiguration(
-                "/**",
-                config
-        );
+	    config.setAllowedHeaders(
+	            List.of("*")
+	    );
 
-        return new CorsFilter(source);
-    }
+	    config.setAllowedMethods(
+	            List.of("*")
+	    );
+
+	    UrlBasedCorsConfigurationSource source =
+	            new UrlBasedCorsConfigurationSource();
+
+	    source.registerCorsConfiguration(
+	            "/**",
+	            config
+	    );
+
+	    return new CorsFilter(source);
+	}
 }

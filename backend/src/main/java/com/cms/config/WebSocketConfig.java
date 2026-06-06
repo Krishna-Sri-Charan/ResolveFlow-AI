@@ -26,10 +26,10 @@ public class WebSocketConfig
             StompEndpointRegistry registry
     ) {
 
-        registry.addEndpoint("/ws")
-
-                .setAllowedOriginPatterns("*")
-
-                .withSockJS();
+    	registry.addEndpoint("/ws")
+	        .setAllowedOrigins(
+	                "https://resolveflow-ai.vercel.app"
+	        )
+	        .withSockJS();
     }
 }
