@@ -17,18 +17,11 @@ public class CorsConfig {
         CorsConfiguration config =
                 new CorsConfiguration();
 
-        config.setAllowCredentials(true);
-
-        config.setAllowedOrigins(
-                List.of("http://localhost:3000")
-        );
-
-        config.setAllowedHeaders(
-                List.of("*")
-        );
-
-        config.setAllowedMethods(
-                List.of("*")
+        config.setAllowedOriginPatterns(
+                List.of(
+                        "http://localhost:3000",
+                        "https://*.vercel.app"
+                )
         );
 
         UrlBasedCorsConfigurationSource source =
