@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -31,16 +32,18 @@ public class AdminController {
     
     @PutMapping("/assign-technician")
     public Complaint assignTechnician(@RequestParam Long complaintId,
-                                      @RequestParam Long technicianId) {
+                                      @RequestParam Long technicianId,
+                                      Principal principal) {
 
-        return complaintService.assignTechnician(complaintId, technicianId);
+        return complaintService.assignTechnician(complaintId, technicianId, principal.getName());
     }
     
     @PutMapping("/update-status")
     public Complaint updateStatus(@RequestParam Long complaintId,
-                                  @RequestParam ComplaintStatus status) {
+                                  @RequestParam ComplaintStatus status,
+                                  Principal principal) {
 
-        return complaintService.updateStatus(complaintId, status);
+        return complaintService.updateStatus(complaintId, status, principal.getName());
     }
 
     @GetMapping("/search")

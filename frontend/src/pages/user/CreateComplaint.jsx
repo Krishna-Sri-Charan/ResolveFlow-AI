@@ -27,67 +27,102 @@ function CreateComplaint() {
   const [suggestions, setSuggestions] = useState("");
   const [recommendedTeam, setRecommendedTeam] = useState("");
   const [error, setError] = useState("");
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = ({ target: { name, value } }) => {
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (name === "title") setTitleError("");
+    if (name === "description") setDescriptionError("");
+    if (error) setError("");
   };
 
   const handleSubmit = async () => {
+    let valid = true;
+
+    if (!form.title.trim()) {
+      setTitleError("Title is required");
+      valid = false;
+    }
+
+    if (!form.description.trim()) {
+      setDescriptionError("Description is required");
+      valid = false;
+    }
+
+    if (!valid) return;
+
     try {
       const formData = new FormData();
+
       formData.append("title", form.title);
       formData.append("description", form.description);
       formData.append("aiCategory", aiCategory);
       formData.append("aiPriority", priority);
       formData.append("userPriority", form.priority);
-      if (file) formData.append("file", file);
 
-      const res = await API.post("/complaints", formData, {
+      if (file) {
+        formData.append("file", file);
+      }
+
+      await API.post("/complaints", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("cms_token")}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      alert(res.data.message);
+
       navigate("/dashboard");
-    } catch (error) {
-      setError("Failed to create complaint");
+    } catch {
+      setError("Failed to create complaint. Please try again.");
     }
   };
 
   const analyzeComplaint = async () => {
-    if (!form.description) {
-      alert("Please enter a complaint description first.");
+    if (!form.description.trim()) {
+      setError("Please enter a complaint description first.");
       return;
     }
+
     try {
       setAiLoading(true);
+
       const res = await API.post("/ai/analyze", form.description, {
-        headers: { "Content-Type": "text/plain" },
+        headers: {
+          "Content-Type": "text/plain",
+        },
       });
+
       setAiCategory(res.data.data.category);
       setPriority(res.data.data.priority);
-    } catch (error) {
-      console.log(error);
-      alert("AI analysis failed");
+    } catch {
+      setError("AI analysis failed. Please try again.");
     } finally {
       setAiLoading(false);
     }
   };
 
   const generateSuggestions = async () => {
-    if (!form.description) {
-      alert("Please enter a complaint description first.");
+    if (!form.description.trim()) {
+      setError("Please enter a complaint description first.");
       return;
     }
+
     try {
       const res = await API.post("/ai/suggestions", form.description, {
-        headers: { "Content-Type": "text/plain" },
+        headers: {
+          "Content-Type": "text/plain",
+        },
       });
+
       setSuggestions(res.data.data.suggestions);
       setRecommendedTeam(res.data.data.recommendedTeam);
-    } catch (error) {
-      console.log(error);
+    } catch {
+      setError("Failed to generate AI suggestions.");
     }
   };
 
@@ -130,7 +165,7 @@ function CreateComplaint() {
                 <Typography variant="caption" sx={{ fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", fontSize: "0.68rem", display: "block", mb: 1 }}>
                   Complaint Title
                 </Typography>
-                <TextField fullWidth name="title" placeholder="e.g., Campus Wi-Fi outage in library reading hall" variant="outlined" onChange={handleChange} sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
+                <TextField fullWidth name="title" placeholder="e.g., Campus Wi-Fi outage in library reading hall" variant="outlined" onChange={handleChange} error={!!titleError} helperText={titleError} sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
               </Box>
 
               <Box>
@@ -153,7 +188,7 @@ function CreateComplaint() {
                 <Typography variant="caption" sx={{ fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", fontSize: "0.68rem", display: "block", mb: 1 }}>
                   Core Problem Statement Description
                 </Typography>
-                <TextField fullWidth name="description" placeholder="Describe environmental conditions, specific hardware identifiers, or unexpected crash outputs..." multiline rows={5} onChange={handleChange} sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
+                <TextField fullWidth name="description" placeholder="Describe environmental conditions, specific hardware identifiers, or unexpected crash outputs..." multiline rows={5} onChange={handleChange} error={!!descriptionError} helperText={descriptionError} sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
               </Box>
 
               {/* Enhanced AI Assistant Engine Dashboard View */}

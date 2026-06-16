@@ -15,7 +15,7 @@ public class NotificationService {
     public void sendNotification(
             String message
     ) {
-
+    	
         messagingTemplate.convertAndSend(
                 "/topic/notifications",
                 message

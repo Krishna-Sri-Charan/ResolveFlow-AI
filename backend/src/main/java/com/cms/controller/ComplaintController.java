@@ -64,6 +64,14 @@ public class ComplaintController {
         
         request.setUserPriority(userPriority);
         
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title is required");
+        }
+
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description is required");
+        }
+        
         Complaint complaint =
 
                 complaintService.createComplaint(

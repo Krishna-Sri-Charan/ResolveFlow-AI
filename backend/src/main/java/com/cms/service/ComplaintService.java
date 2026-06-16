@@ -106,6 +106,15 @@ public class ComplaintService {
                 user
         );
         
+        notificationService.sendNotification(
+                "New complaint submitted: #"
+                + savedComplaint.getId()
+                + " - "
+                + savedComplaint.getTitle()
+        );
+        
+        System.out.println("Notification sent");
+        
         try {
 
         	emailService.sendEmail(
@@ -180,20 +189,25 @@ public class ComplaintService {
         return complaintRepository.findAll();
     }
     
-    public Complaint assignTechnician(Long complaintId, Long technicianId) {
+    public Complaint assignTechnician(Long complaintId, Long technicianId, String updatedByEmail) {
 
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new ResourceNotFoundException("Complaint not found"));
 
         User technician = userRepository.findById(technicianId)
                 .orElseThrow(() -> new ResourceNotFoundException("Technician not found"));
+        
+        User assignedBy  = userRepository
+                .findByEmail(updatedByEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         complaint.setTechnician(technician);
         
         complaintUpdateService.addUpdate(
                 complaint,
-                "Technician assigned",
-                technician
+                "Technician " + technician.getName() + " assigned",
+                assignedBy
         );
         
         emailService.sendEmail(
@@ -214,31 +228,38 @@ public class ComplaintService {
         	);
         
         notificationService.sendNotification(
-                "Complaint #" + complaint.getId()
-                        + " assigned to "
-                        + technician.getName()
+                "Technician "
+                + technician.getName()
+                + " assigned to Complaint #"
+                + complaint.getId()
         );
         
         return complaintRepository.save(complaint);
     }
     
-    public Complaint updateStatus(Long complaintId, ComplaintStatus status) {
+    public Complaint updateStatus(Long complaintId, ComplaintStatus status, String updatedByEmail) {
 
         Complaint complaint = complaintRepository.findById(complaintId)
                 .orElseThrow(() -> new ResourceNotFoundException("Complaint not found"));
+        
+        User updater = userRepository
+                .findByEmail(updatedByEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         complaint.setStatus(status);
 
         complaintUpdateService.addUpdate(
                 complaint,
                 "Status changed to " + status,
-                complaint.getUser()
+                updater
         );
         
         notificationService.sendNotification(
-                "Complaint #" + complaint.getId()
-                        + " updated to "
-                        + status
+                "Complaint #"
+                + complaint.getId()
+                + " status changed to "
+                + status
         );
         
         if (status == ComplaintStatus.RESOLVED) {

@@ -28,6 +28,7 @@ public class WebSocketConfig
 
     	registry.addEndpoint("/ws")
 	        .setAllowedOrigins(
+	        		"http://localhost:3000",
 	                "https://resolveflow-ai.vercel.app"
 	        )
 	        .withSockJS();

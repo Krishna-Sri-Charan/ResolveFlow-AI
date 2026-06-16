@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/v1/technician")
 @PreAuthorize("hasRole('TECHNICIAN')")
@@ -35,9 +37,10 @@ public class TechnicianController {
 
     @PutMapping("/update-status")
     public Complaint updateStatus(@RequestParam Long complaintId,
-                                  @RequestParam ComplaintStatus status) {
+                                  @RequestParam ComplaintStatus status,
+                                  Principal principal) {
 
-        return complaintService.updateStatus(complaintId, status);
+        return complaintService.updateStatus(complaintId, status, principal.getName());
     }
 
     @PostMapping("/add-update")

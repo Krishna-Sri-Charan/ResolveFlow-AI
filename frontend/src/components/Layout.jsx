@@ -19,17 +19,37 @@ function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-  const [notification, setNotification] = useState("");
+  const [notification, setNotification] = useState({
+    open: false,
+    message: ""
+  });
 
   useEffect(() => {
     stompClient.onConnect = () => {
+
       stompClient.subscribe("/topic/notifications", (message) => {
-        setNotification(message.body);
+
+        setNotification({
+          open: true,
+          message: message.body
+        });
       });
     };
+
+    stompClient.onStompError = (frame) => {
+      console.error("❌ STOMP Error", frame);
+    };
+
+    stompClient.onWebSocketError = (error) => {
+      console.error("❌ WebSocket Error", error);
+    };
+
     stompClient.activate();
+
     return () => {
-      stompClient.deactivate();
+      if (stompClient.active) {
+        stompClient.deactivate();
+      }
     };
   }, []);
 
@@ -74,6 +94,25 @@ function Layout({ children }) {
   };
 
   const badge = getRoleBadge(user?.role);
+
+  const getSeverity = (message = "") => {
+
+    const text = message.toLowerCase();
+
+    if (text.includes("resolved"))
+      return "success";
+
+    if (text.includes("assigned"))
+      return "info";
+
+    if (text.includes("submitted"))
+      return "warning";
+
+    if (text.includes("failed"))
+      return "error";
+
+    return "info";
+  };
 
   return (
     <Box sx={{ display: "flex", bgcolor: "#f8fafc", minHeight: "100vh" }}>
@@ -202,9 +241,30 @@ function Layout({ children }) {
       </Box>
 
       {/* Async Notification Dispatch Broker Toast Layer Overlay */}
-      <Snackbar open={!!notification} autoHideDuration={4500} onClose={() => setNotification("")} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
-        <Alert severity="info" icon={<NotificationsActiveOutlined fontSize="small" />} sx={{ borderRadius: "8px", fontWeight: 600, bgcolor: "#0f172a", color: "#fff", boxShadow: "0 12px 32px rgba(0,0,0,0.15)", "& .MuiAlert-icon": { color: "#818cf8" } }}>
-          ResolveFlow Engine: {notification}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={4500}
+        onClose={() =>
+          setNotification({
+            open: false,
+            message: ""
+          })
+        }
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right"
+        }}
+      >
+        <Alert
+          severity={getSeverity(notification.message)}
+          icon={<NotificationsActiveOutlined fontSize="small" />}
+          variant="filled"
+          sx={{
+            borderRadius: 2,
+            fontWeight: 600,
+          }}
+        >
+          {notification.message}
         </Alert>
       </Snackbar>
     </Box>

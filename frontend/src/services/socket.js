@@ -1,16 +1,12 @@
 import SockJS from "sockjs-client";
-
 import { Client } from "@stomp/stompjs";
 
-const socket = new SockJS(
+const socketUrl =
   process.env.REACT_APP_WS_URL ||
-   "http://localhost:8080/ws"
-);
+  "http://localhost:8080/ws";
 
 const stompClient = new Client({
-
-  webSocketFactory: () => socket,
-
+  webSocketFactory: () => new SockJS(socketUrl),
   reconnectDelay: 5000,
 });
 

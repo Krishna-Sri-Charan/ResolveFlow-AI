@@ -25,6 +25,9 @@ public class CommentService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     public Comment addComment(
 
@@ -65,10 +68,17 @@ public class CommentService {
                         )
 
                         .build();
-
-        return commentRepository.save(
-                comment
+        
+        Comment savedComment =
+                commentRepository.save(comment);
+        
+        notificationService.sendNotification(
+                user.getName()
+                + " commented on Complaint #"
+                + complaint.getId()
         );
+
+        return savedComment;
     }
 
     public List<Comment> getComments(
