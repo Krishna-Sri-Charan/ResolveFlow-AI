@@ -17,6 +17,8 @@ import AdminDashboardAnalytics from "../../components/AdminDashboardAnalytics";
 import TechnicianPerformanceTable from "../../components/TechnicianPerformanceTable";
 import CommonLoader from "../../components/CommonLoader";
 import ErrorMessage from "../../components/ErrorMessage";
+import { getNotificationFromError } from "../../utils/notificationUtils";
+import CommonSnackbar from "../../components/CommonSnackbar";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -36,6 +38,7 @@ function AdminDashboard() {
   const [error, setError] = useState("");
   const [technicians, setTechnicians] = useState([]);
   const [selectedTechnician, setSelectedTechnician] = useState("");
+  const [notification, setNotification] = useState({ open: false, severity: "info", message: "" });
 
   const handleMenuOpen = (event, complaintId) => {
     event.stopPropagation();
@@ -94,7 +97,16 @@ function AdminDashboard() {
       setOpenModal(false);
       fetchComplaints();
     } catch (error) {
-      setError("Action failed. Please check your inputs.");
+      const notification = getNotificationFromError(
+        error,
+        "Failed to update complaint."
+      );
+
+      setNotification({
+        open: true,
+        ...notification
+      });
+
     } finally {
       setLoading(false);
     }
@@ -110,7 +122,6 @@ function AdminDashboard() {
       setComplaints(res.data.data || []);
       setTotalPages(0);
     } catch (error) {
-      console.log(error);
       setError("Failed to search complaints.");
     } finally {
       setLoading(false);
@@ -579,6 +590,10 @@ function AdminDashboard() {
             </Button>
           </DialogActions>
         </Dialog>
+        <CommonSnackbar
+          notification={notification}
+          setNotification={setNotification}
+        />
       </Box>
     </Layout>
   );

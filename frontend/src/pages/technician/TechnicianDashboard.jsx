@@ -15,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 import TechnicianDashboardAnalytics from "../../components/TechnicianDashboardAnalytics";
 import CommonLoader from "../../components/CommonLoader";
 import ErrorMessage from "../../components/ErrorMessage";
+import { getNotificationFromError } from "../../utils/notificationUtils";
+import CommonSnackbar from "../../components/CommonSnackbar";
 
 function TechnicianDashboard() {
   const [complaints, setComplaints] = useState([]);
@@ -29,6 +31,7 @@ function TechnicianDashboard() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notification, setNotification] = useState({ open: false, severity: "info", message: "" });
   
   const user = JSON.parse(localStorage.getItem("cms_user"));
 
@@ -81,8 +84,14 @@ function TechnicianDashboard() {
       setOpenModal(false);
       fetchComplaints();
     } catch (error) {
-      console.log(error);
-      setError("Failed to update complaint");
+        const notification = getNotificationFromError(
+          error,
+          "Failed to update complaint."
+        );
+        setNotification({
+            open: true,
+            ...notification
+        });
     } finally {
       setLoading(false);
     }
@@ -344,6 +353,7 @@ function TechnicianDashboard() {
             <Button variant="contained" disableElevation onClick={handleModalSubmit} sx={{ borderRadius: "8px", bgcolor: "#10b981", fontWeight: 700, px: 3, textTransform: "none", "&:hover": { bgcolor: "#059669" } }}>Commit Changes</Button>
           </DialogActions>
         </Dialog>
+        <CommonSnackbar notification={notification} setNotification={setNotification} />
       </Box>
     </Layout>
   );

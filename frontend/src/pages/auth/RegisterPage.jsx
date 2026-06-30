@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   TextField, Button, Box, Typography, Paper,
   Link, MenuItem, Stack, InputAdornment, IconButton,
-  Chip,
+  Chip
 } from "@mui/material";
 import {
   PersonAdd, PersonOutlined, EmailOutlined,
@@ -11,9 +11,9 @@ import {
   BadgeOutlined,
 } from "@mui/icons-material";
 import API from "../../services/api";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import logo from "../../assets/resolveflow-logo.png";
+import { getNotificationFromError } from "../../utils/notificationUtils";
+import CommonSnackbar from "../../components/CommonSnackbar";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -107,14 +107,10 @@ function RegisterPage() {
       });
 
       setNotification({
-
         open: true,
-
         severity: "success",
-
         message:
           "Account created successfully."
-
       });
 
       setTimeout(() => {
@@ -124,25 +120,17 @@ function RegisterPage() {
       }, 1200);
 
     } catch (error) {
-
-      setNotification({
-
-        open: true,
-
-        severity: "error",
-
-        message:
-          error.response?.data?.message ||
-          "Registration failed."
-
-      });
-
+        const notification = getNotificationFromError(
+          error,
+          "Failed to create account."
+        );
+        setNotification({
+          open: true,
+          ...notification
+        });
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   const roleOptions = [
@@ -442,37 +430,10 @@ function RegisterPage() {
             </Typography>
           </Stack>
         </Paper>
-        <Snackbar
-          open={notification.open}
-          autoHideDuration={3500}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "right"
-          }}
-          onClose={() =>
-            setNotification(prev => ({
-              ...prev,
-              open: false
-            }))
-          }
-        >
-
-          <Alert
-            severity={notification.severity}
-            variant="filled"
-            onClose={() =>
-              setNotification(prev => ({
-                ...prev,
-                open: false
-              }))
-            }
-          >
-
-            {notification.message}
-
-          </Alert>
-
-        </Snackbar>
+        <CommonSnackbar
+          notification={notification}
+          setNotification={setNotification}
+        />
       </Box>
     </Box>
   );

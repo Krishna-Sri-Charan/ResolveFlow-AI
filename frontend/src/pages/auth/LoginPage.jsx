@@ -2,17 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   TextField, Button, Box, Typography, Paper,
-  Link, Stack, InputAdornment, IconButton,
+  Link, Stack, InputAdornment, IconButton
 } from "@mui/material";
 import {
   Login as LoginIcon, EmailOutlined,
   LockOutlined, Visibility, VisibilityOff
 } from "@mui/icons-material";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 import API from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/resolveflow-logo.png";
+import { getNotificationFromError } from "../../utils/notificationUtils";
+import CommonSnackbar from "../../components/CommonSnackbar";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -125,23 +125,18 @@ function LoginPage() {
       }, 1200);
 
     } catch (error) {
+      const notification = getNotificationFromError(
+        error,
+        "Unable to login. Please check your credentials and try again."
+      );
 
       setNotification({
-
         open: true,
-
-        severity: "error",
-
-        message:
-          error.response?.data?.message ||
-          "Unable to login. Please try again."
-
+        ...notification
       });
 
     } finally {
-
       setLoading(false);
-
     }
   };
 
@@ -342,25 +337,10 @@ function LoginPage() {
             </Typography>
           </Stack>
         </Paper>
-        <Snackbar
-          open={notification.open}
-          autoHideDuration={3500}
-          onClose={() =>
-            setNotification((prev) => ({ ...prev, open: false }))
-          }
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <Alert
-            onClose={() =>
-              setNotification((prev) => ({ ...prev, open: false }))
-            }
-            severity={notification.severity}
-            variant="filled"
-            sx={{ width: "100%" }}
-          >
-            {notification.message}
-          </Alert>
-        </Snackbar>
+        <CommonSnackbar
+          notification={notification}
+          setNotification={setNotification}
+        />
       </Box>
     </Box>
   );

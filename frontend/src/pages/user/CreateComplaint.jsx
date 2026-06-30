@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  Button, TextField, Box, Typography, Paper, Stack, 
+  Button, TextField, Box, Typography, Paper, Stack,
   MenuItem, Breadcrumbs, Link, Chip, Divider, CircularProgress, Grid, Card
 } from "@mui/material";
 import {
@@ -11,7 +11,8 @@ import {
 import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout";
-import ErrorMessage from "../../components/ErrorMessage";
+import { getNotificationFromError } from "../../utils/notificationUtils";
+import CommonSnackbar from "../../components/CommonSnackbar";
 
 function CreateComplaint() {
   const navigate = useNavigate();
@@ -26,9 +27,14 @@ function CreateComplaint() {
   const [aiLoading, setAiLoading] = useState(false);
   const [suggestions, setSuggestions] = useState("");
   const [recommendedTeam, setRecommendedTeam] = useState("");
-  const [error, setError] = useState("");
   const [titleError, setTitleError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
+  const [notification, setNotification] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
+    const [loading,setLoading]=useState(false);
 
   const handleChange = ({ target: { name, value } }) => {
     setForm((prev) => ({
@@ -38,10 +44,10 @@ function CreateComplaint() {
 
     if (name === "title") setTitleError("");
     if (name === "description") setDescriptionError("");
-    if (error) setError("");
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     let valid = true;
 
     if (!form.title.trim()) {
@@ -76,16 +82,38 @@ function CreateComplaint() {
         },
       });
 
-      navigate("/dashboard");
-    } catch {
-      setError("Failed to create complaint. Please try again.");
-    }
+      setNotification({
+          open:true,
+          severity:"success",
+          message:"Complaint created successfully."
+      });
+
+      setTimeout(() => {
+          navigate("/dashboard");
+      },1200);
+    } catch (error) {
+        const notification = getNotificationFromError(
+          error,
+          "Failed to create complaint."
+        );
+
+        setNotification({
+          open: true,
+          ...notification
+        });
+      } finally{
+        setLoading(false);
+      }
   };
 
   const analyzeComplaint = async () => {
     if (!form.description.trim()) {
-      setError("Please enter a complaint description first.");
-      return;
+        setNotification({
+            open: true,
+            severity: "warning",
+            message: "Please enter a complaint description first."
+        });
+        return;
     }
 
     try {
@@ -99,8 +127,13 @@ function CreateComplaint() {
 
       setAiCategory(res.data.data.category);
       setPriority(res.data.data.priority);
-    } catch {
-      setError("AI analysis failed. Please try again.");
+    } catch (error) {
+      const status = error.response?.status;
+      setNotification({
+        open: true,
+        severity: status === 400 ? "warning" : "error",
+        message: error.response?.data?.message || "AI analysis failed. Please try again."
+      });
     } finally {
       setAiLoading(false);
     }
@@ -108,7 +141,11 @@ function CreateComplaint() {
 
   const generateSuggestions = async () => {
     if (!form.description.trim()) {
-      setError("Please enter a complaint description first.");
+      setNotification({
+        open: true,
+        severity: "warning",
+        message: "Please enter a complaint description first."
+      });
       return;
     }
 
@@ -121,9 +158,33 @@ function CreateComplaint() {
 
       setSuggestions(res.data.data.suggestions);
       setRecommendedTeam(res.data.data.recommendedTeam);
-    } catch {
-      setError("Failed to generate AI suggestions.");
+    } catch (error) {
+      const status = error.response?.status;
+      setNotification({
+        open: true,
+        severity: status === 400 ? "warning" : "error",
+        message: error.response?.data?.message || "Failed to generate AI suggestions."
+      });
     }
+  };
+
+  const handleFileChange = (e) => {
+
+    const selectedFile = e.target.files[0];
+
+    if(!selectedFile) return;
+
+    if(selectedFile.size > 5 * 1024 * 1024){
+
+        setNotification({
+            open:true,
+            severity:"warning",
+            message:"File size must be less than 5 MB."
+        });
+
+        return;
+    }
+    setFile(selectedFile);
   };
 
   const priorityOptions = [
@@ -131,8 +192,6 @@ function CreateComplaint() {
     { value: "MEDIUM", label: "Medium — Performance Issue", color: "#d97706", bg: "#fffbeb" },
     { value: "HIGH", label: "High — Service Outage", color: "#dc2626", bg: "#fee2e2" },
   ];
-  
-  if (error) return <Layout><ErrorMessage message={error} /></Layout>;
 
   return (
     <Layout>
@@ -295,7 +354,7 @@ function CreateComplaint() {
                     {file ? file.name : "Choose logs file, diagnostic screenshot, or document archive..."}
                   </Typography>
                   {file && <CheckCircleOutline sx={{ fontSize: 18, color: "#10b981", ml: "auto" }} />}
-                  <input type="file" hidden onChange={(e) => setFile(e.target.files[0])} />
+                  <input type="file" hidden onChange={handleFileChange} />
                 </Box>
               </Box>
 
@@ -305,12 +364,14 @@ function CreateComplaint() {
                   Back
                 </Button>
                 <Button fullWidth variant="contained" disableElevation endIcon={<Send />} onClick={handleSubmit} sx={{ py: 1.2, fontWeight: 700, borderRadius: "8px", bgcolor: "#4f46e5", fontSize: "0.85rem", textTransform: "none", "&:hover": { bgcolor: "#1e293b" } }}>
+                {loading ? "Submitting..." : "Submit Complaint"}
                   Submit Complaint
                 </Button>
               </Stack>
             </Stack>
           </Box>
         </Paper>
+        <CommonSnackbar notification={notification} setNotification={setNotification} />
       </Box>
     </Layout>
   );
