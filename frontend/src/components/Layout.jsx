@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import {
   AppBar, Toolbar, Typography, Drawer, List,
   ListItem, ListItemButton, ListItemIcon, ListItemText,
-  Box, CssBaseline, Divider, Avatar, Snackbar, Alert, Stack, Chip
+  Box, CssBaseline, Divider, Avatar, Snackbar, Alert, Stack, Chip,
+  IconButton
 } from "@mui/material";
 import {
   Dashboard, AddCircle, ListAlt, AdminPanelSettings,
-  Engineering, Logout, Person, NotificationsActiveOutlined
+  Engineering, Logout, Person, NotificationsActiveOutlined, Menu as MenuIcon
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -19,6 +20,7 @@ function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [notification, setNotification] = useState({
     open: false,
     message: ""
@@ -52,6 +54,12 @@ function Layout({ children }) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
   const menuItems = [];
 
@@ -114,6 +122,67 @@ function Layout({ children }) {
     return "info";
   };
 
+  const drawerContent = (
+    <Box sx={{ overflow: "auto", py: 3, px: 2, display: "flex", flexDirection: "column", height: "100%" }}>
+      <Typography variant="caption" sx={{ px: 1.5, mb: 1.5, color: "#94a3b8", fontWeight: 700, fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.08em", display: "block" }}>
+        Workspace Hub
+      </Typography>
+
+      <List disablePadding sx={{ gap: 0.5, display: "flex", flexDirection: "column" }}>
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton
+                onClick={() => navigate(item.path)}
+                sx={{
+                  borderRadius: "8px",
+                  px: 2,
+                  py: 1.2,
+                  bgcolor: isActive ? "#f0fdf4" : "transparent",
+                  color: isActive ? "#16a34a" : "#475569",
+                  "&:hover": {
+                    bgcolor: isActive ? "#f0fdf4" : "#f8fafc",
+                    color: "#16a34a",
+                    "& .MuiListItemIcon-root": { color: "#16a34a" }
+                  },
+                  transition: "all 0.15s ease-in-out"
+                }}
+              >
+                <ListItemIcon sx={{ color: isActive ? "#16a34a" : "#64748b", minWidth: 32, transition: "color 0.15s" }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: isActive ? 700 : 500 }} />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+
+      <Box sx={{ flexGrow: 1 }} />
+      <Divider sx={{ mb: 2, borderColor: "#f1f5f9" }} />
+
+      <ListItem disablePadding>
+        <ListItemButton
+          onClick={logout}
+          sx={{
+            borderRadius: "8px",
+            px: 2,
+            py: 1.2,
+            color: "#dc2626",
+            "&:hover": { bgcolor: "#fee2e2", color: "#b91c1c" },
+            transition: "all 0.15s ease-in-out"
+          }}
+        >
+          <ListItemIcon sx={{ color: "inherit", minWidth: 32 }}>
+            <Logout fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Sign out" primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 600 }} />
+        </ListItemButton>
+      </ListItem>
+    </Box>
+  );
+
   return (
     <Box sx={{ display: "flex", bgcolor: "#f8fafc", minHeight: "100vh" }}>
       <CssBaseline />
@@ -132,6 +201,13 @@ function Layout({ children }) {
       >
         <Toolbar sx={{ justifyContent: "space-between", minHeight: "64px !important", px: { xs: 2, sm: 3 } }}>
           <Stack direction="row" alignItems="center" spacing={1}>
+            <IconButton
+              onClick={handleDrawerToggle}
+              sx={{ display: { xs: "inline-flex", sm: "none" }, color: "#0f172a", mr: 0.5 }}
+              aria-label="open navigation menu"
+            >
+              <MenuIcon />
+            </IconButton>
             <Box component="img" src={logo} alt="ResolveFlow AI" sx={{ width: 44, height: 44, objectFit: "contain" }} />
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#0f172a", lineHeight: 1.1, letterSpacing: "-0.3px", fontSize: "0.95rem" }}>
@@ -158,10 +234,30 @@ function Layout({ children }) {
         </Toolbar>
       </AppBar>
 
-      {/* Persistent Left Desktop Sidebar */}
+      {/* Mobile: temporary (overlay) drawer, only mounted when needed for perf */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: "block", sm: "none" },
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            bgcolor: "#ffffff",
+          },
+        }}
+      >
+        <Toolbar sx={{ minHeight: "64px !important" }} />
+        {drawerContent}
+      </Drawer>
+
+      {/* Desktop: permanent sidebar */}
       <Drawer
         variant="permanent"
         sx={{
+          display: { xs: "none", sm: "block" },
           width: drawerWidth,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
@@ -174,69 +270,20 @@ function Layout({ children }) {
         }}
       >
         <Toolbar sx={{ minHeight: "64px !important" }} />
-        <Box sx={{ overflow: "auto", py: 3, px: 2, display: "flex", flexDirection: "column", height: "100%" }}>
-          <Typography variant="caption" sx={{ px: 1.5, mb: 1.5, color: "#94a3b8", fontWeight: 700, fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.08em", display: "block" }}>
-            Workspace Hub
-          </Typography>
-
-          <List disablePadding sx={{ gap: 0.5, display: "flex", flexDirection: "column" }}>
-            {menuItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <ListItem key={item.text} disablePadding>
-                  <ListItemButton
-                    onClick={() => navigate(item.path)}
-                    sx={{
-                      borderRadius: "8px",
-                      px: 2,
-                      py: 1.2,
-                      bgcolor: isActive ? "#f0fdf4" : "transparent", // Soft modern color tracking background context
-                      color: isActive ? "#16a34a" : "#475569",
-                      "&:hover": {
-                        bgcolor: isActive ? "#f0fdf4" : "#f8fafc",
-                        color: "#16a34a",
-                        "& .MuiListItemIcon-root": { color: "#16a34a" }
-                      },
-                      transition: "all 0.15s ease-in-out"
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: isActive ? "#16a34a" : "#64748b", minWidth: 32, transition: "color 0.15s" }}>
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText primary={item.text} primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: isActive ? 700 : 500 }} />
-                  </ListItemButton>
-                </ListItem>
-              );
-            })}
-          </List>
-
-          <Box sx={{ flexGrow: 1 }} />
-          <Divider sx={{ mb: 2, borderColor: "#f1f5f9" }} />
-
-          {/* Secure Logout Endpoint Row */}
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={logout}
-              sx={{
-                borderRadius: "8px",
-                px: 2,
-                py: 1.2,
-                color: "#dc2626",
-                "&:hover": { bgcolor: "#fee2e2", color: "#b91c1c" },
-                transition: "all 0.15s ease-in-out"
-              }}
-            >
-              <ListItemIcon sx={{ color: "inherit", minWidth: 32 }}>
-                <Logout fontSize="small" />
-              </ListItemIcon>
-              <ListItemText primary="Sign out" primaryTypographyProps={{ fontSize: "0.85rem", fontWeight: 600 }} />
-            </ListItemButton>
-          </ListItem>
-        </Box>
+        {drawerContent}
       </Drawer>
 
       {/* Main Framework Layout Container Element Context View */}
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 3, md: 4 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: "64px", minHeight: "calc(100vh - 64px)" }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: { xs: 3, md: 4 },
+          width: { xs: "100%", sm: `calc(100% - ${drawerWidth}px)` },
+          mt: "64px",
+          minHeight: "calc(100vh - 64px)"
+        }}
+      >
         {children}
       </Box>
 
