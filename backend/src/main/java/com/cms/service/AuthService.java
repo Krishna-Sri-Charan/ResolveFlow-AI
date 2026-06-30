@@ -1,5 +1,6 @@
 package com.cms.service;
 
+import com.cms.model.Role;
 import com.cms.model.User;
 import com.cms.repository.UserRepository;
 import com.cms.dto.LoginRequest;
@@ -27,6 +28,13 @@ public class AuthService {
     private JwtUtil jwtUtil;
 
     public User register(User user) {
+    	
+    	if (user.getRole() == Role.ADMIN) {
+
+            throw new IllegalArgumentException(
+                    "Admin registration is not allowed."
+            );
+        }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 

@@ -135,8 +135,7 @@ function RegisterPage() {
 
   const roleOptions = [
     { value: "USER", label: "User", color: "#6366f1", bg: "#eef2ff" },
-    { value: "TECHNICIAN", label: "Technician", color: "#d97706", bg: "#fef3c7" },
-    { value: "ADMIN", label: "Administrator", color: "#dc2626", bg: "#fee2e2" },
+    { value: "TECHNICIAN", label: "Technician", color: "#d97706", bg: "#fef3c7" }
   ];
 
   const selectedRole = roleOptions.find((r) => r.value === form.role);
